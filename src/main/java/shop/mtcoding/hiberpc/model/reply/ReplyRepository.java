@@ -1,4 +1,4 @@
-package shop.mtcoding.hiberpc.model.user;
+package shop.mtcoding.hiberpc.model.reply;
 
 import org.springframework.stereotype.Repository;
 import shop.mtcoding.hiberpc.model.MyRepository;
@@ -6,19 +6,19 @@ import shop.mtcoding.hiberpc.model.MyRepository;
 import javax.persistence.EntityManager;
 
 @Repository
-public class UserRepository extends MyRepository<User> {
+public class ReplyRepository extends MyRepository<Reply> {
 
-    public UserRepository(EntityManager em) {
+    public ReplyRepository(EntityManager em) {
         super(em);
     }
 
     @Override
-    protected Class<User> getEntityClass() {
-        return User.class;
+    protected Class<Reply> getEntityClass() {
+        return Reply.class;
     }
 
     @Override
     protected String getEntityName() {
-        return "User";
+        return "Reply";
     }
 }

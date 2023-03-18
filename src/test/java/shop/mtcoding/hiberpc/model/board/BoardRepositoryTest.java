@@ -83,7 +83,7 @@ public class BoardRepositoryTest extends MyDummyEntity {
         Board board = newBoard("제목1", userPS);
         Board boardPS = boardRepository.save(board);
 
-        // given 2 - request 데이터
+        // given 2 - request 데이터 (Lazy, Eager 쿼리 테스트)
         // em.clear();
         int id = 1;
         Board findBoardPS = boardRepository.findById(id);
