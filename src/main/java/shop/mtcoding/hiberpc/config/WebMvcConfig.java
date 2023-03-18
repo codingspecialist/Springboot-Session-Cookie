@@ -5,7 +5,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import shop.mtcoding.hiberpc.config.handler.MyLoginArgumentHandler;
+import shop.mtcoding.hiberpc.handler.MyLoginArgumentHandler;
 import shop.mtcoding.hiberpc.config.interceptor.LoginInterceptor;
 
 import java.util.List;

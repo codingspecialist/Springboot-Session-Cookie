@@ -1,15 +1,10 @@
-package shop.mtcoding.hiberpc.model.board;
+package shop.mtcoding.hiberpc.model;
 
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import shop.mtcoding.hiberpc.config.dummy.MyDummyEntity;
-import shop.mtcoding.hiberpc.model.user.User;
-import shop.mtcoding.hiberpc.model.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import java.util.Arrays;
@@ -17,15 +12,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Import({UserRepository.class, BoardRepository.class})
+
 @DataJpaTest
-public class BoardRepositoryTest extends MyDummyEntity {
+public class UserRepositoryTest extends MyDummyEntity {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private BoardRepository boardRepository;
 
     @Autowired
     private EntityManager em;
@@ -33,25 +25,18 @@ public class BoardRepositoryTest extends MyDummyEntity {
     @BeforeEach
     public void setUp(){
         em.createNativeQuery("ALTER TABLE user_tb ALTER COLUMN id RESTART WITH 1").executeUpdate();
-        em.createNativeQuery("ALTER TABLE board_tb ALTER COLUMN id RESTART WITH 1").executeUpdate();
     }
 
     @Test
     public void save_test(){
-        // given 1
+        // given
         User user = newUser("ssar");
-        User userPS = userRepository.save(user);
-
-        // given 2
-        Board board = newBoard("제목1", userPS);
 
         // when
-        Board boardPS = boardRepository.save(board);
-        System.out.println("테스트 : "+boardPS);
+        User userPS = userRepository.save(user);
 
         // then
-        assertThat(boardPS.getId()).isEqualTo(1);
-        assertThat(boardPS.getUser().getId()).isEqualTo(1);
+        assertThat(userPS.getId()).isEqualTo(1);
     }
 
     @Test
@@ -59,41 +44,54 @@ public class BoardRepositoryTest extends MyDummyEntity {
         // given 1 - DB에 영속화
         User user = newUser("ssar");
         User userPS = userRepository.save(user);
-        Board board = newBoard("제목1", userPS);
-        Board boardPS = boardRepository.save(board);
 
         // given 2 - request 데이터
-        String title = "제목12";
-        String content = "내용12";
+        String password = "5678";
+        String email = "ssar@gmail.com";
 
         // when
-        boardPS.update(title, content);
-        em.flush(); // 트랜잭션 종료시 자동 발동됨
+        userPS.update(password, email);
+        User updateUserPS = userRepository.save(userPS);
 
         // then
-        Board findBoardPS = boardRepository.findById(1);
-        assertThat(findBoardPS.getContent()).isEqualTo("내용12");
+        assertThat(updateUserPS.getPassword()).isEqualTo("5678");
+    }
+
+    @Test
+    public void update_dutty_checking_test(){
+        // given 1 - DB에 영속화
+        User user = newUser("ssar");
+        User userPS = userRepository.save(user);
+
+        // given 2 - request 데이터
+        String password = "5678";
+        String email = "ssar@gmail.com";
+
+        // when
+        userPS.update(password, email);
+        em.flush();
+
+        // then
+        User updateUserPS = userRepository.findById(1);
+        assertThat(updateUserPS.getPassword()).isEqualTo("5678");
     }
 
     @Test
     public void delete_test(){
         // given 1 - DB에 영속화
         User user = newUser("ssar");
-        User userPS = userRepository.save(user);
-        Board board = newBoard("제목1", userPS);
-        Board boardPS = boardRepository.save(board);
+        userRepository.save(user);
 
-        // given 2 - request 데이터 (Lazy, Eager 쿼리 테스트)
-        // em.clear();
+        // given 2 - request 데이터
         int id = 1;
-        Board findBoardPS = boardRepository.findById(id);
+        User findUserPS = userRepository.findById(id);
 
         // when
-        boardRepository.delete(findBoardPS);
+        userRepository.delete(findUserPS);
 
         // then
-        Board deleteBoardPS = boardRepository.findById(1);
-        Assertions.assertThat(deleteBoardPS).isNull();
+        User deleteUserPS = userRepository.findById(1);
+        assertThat(deleteUserPS).isNull();
     }
 
     @Test

@@ -1,4 +1,4 @@
-package shop.mtcoding.hiberpc.config.handler;
+package shop.mtcoding.hiberpc.handler;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

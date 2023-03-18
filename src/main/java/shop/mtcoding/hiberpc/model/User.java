@@ -1,4 +1,4 @@
-package shop.mtcoding.hiberpc.model.user;
+package shop.mtcoding.hiberpc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
