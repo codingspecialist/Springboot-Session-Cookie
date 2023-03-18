@@ -1,4 +1,4 @@
-package shop.mtcoding.hiberpc.config.exception;
+package shop.mtcoding.hiberpc.handler.ex;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

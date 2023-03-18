@@ -1,4 +1,4 @@
-package shop.mtcoding.hiberpc.handler;
+package shop.mtcoding.hiberpc.config.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -7,14 +7,14 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import shop.mtcoding.hiberpc.config.annotation.LoginUser;
+import shop.mtcoding.hiberpc.config.auth.LoginUser;
 import shop.mtcoding.hiberpc.model.User;
 
 import javax.servlet.http.HttpSession;
 
 @RequiredArgsConstructor
 @Configuration
-public class MyLoginArgumentHandler implements HandlerMethodArgumentResolver {
+public class MyLoginArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final HttpSession session;
 

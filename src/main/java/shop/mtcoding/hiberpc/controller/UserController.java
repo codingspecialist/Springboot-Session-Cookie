@@ -8,4 +8,6 @@ import shop.mtcoding.hiberpc.model.UserRepository;
 @RestController
 public class UserController {
     private final UserRepository userRepository;
+
+
 }
