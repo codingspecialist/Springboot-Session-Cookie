@@ -24,16 +24,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedHeaders("*")
-                .allowedMethods("*")
-                .allowedOriginPatterns("*") // 모든 IP 주소 허용 (프론트 앤드 주소만 허용하게 설정하는 것이 좋음)
-                .allowCredentials(true) // 클라이언트에서 쿠키 요청 허용
-                .exposedHeaders("Authorization"); // JWT 사용하려면 허용해주기
-    }
-
-    @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(myLoginArgumentResolver);
     }
