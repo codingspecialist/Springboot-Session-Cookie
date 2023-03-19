@@ -9,7 +9,7 @@ import shop.mtcoding.hiberpc.handler.ex.MyException;
 public class MyExceptionAdvice {
 
     @ExceptionHandler(MyException.class)
-    public ResponseEntity<?> error1(MyException e){
+    public ResponseEntity<?> error(MyException e){
         return new ResponseEntity<>(e.getMessage(), e.getHttpStatus());
     }
 }
