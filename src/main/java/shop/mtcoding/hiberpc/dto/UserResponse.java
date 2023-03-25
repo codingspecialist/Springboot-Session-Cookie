@@ -1,4 +1,4 @@
 package shop.mtcoding.hiberpc.dto;
 
-public class UserOut {
+public class UserResponse {
 }

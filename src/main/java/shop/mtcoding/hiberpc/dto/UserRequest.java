@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import shop.mtcoding.hiberpc.model.User;
 
-public class UserIn {
+public class UserRequest {
 
     @Getter @Setter
-    public static class JoinInDto{
+    public static class JoinDto{
         private String username;
         private String password;
         private String email;
@@ -22,7 +22,7 @@ public class UserIn {
     }
 
     @Getter @Setter
-    public static class LoginInDto{
+    public static class LoginDto{
         private String username;
         private String password;
     }

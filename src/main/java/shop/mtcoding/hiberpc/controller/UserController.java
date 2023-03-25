@@ -1,11 +1,11 @@
 package shop.mtcoding.hiberpc.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import shop.mtcoding.hiberpc.dto.UserIn;
+import shop.mtcoding.hiberpc.config.auth.LoginUser;
+import shop.mtcoding.hiberpc.dto.UserRequest;
 import shop.mtcoding.hiberpc.handler.ex.MyException;
 import shop.mtcoding.hiberpc.model.User;
 import shop.mtcoding.hiberpc.model.UserRepository;
@@ -21,57 +21,78 @@ import java.util.List;
 public class UserController {
     private final UserRepository userRepository;
     private final HttpSession session;
-    
+
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody UserIn.JoinInDto joinInDto){
-        User userPS = userRepository.save(joinInDto.toEntity());
+    public ResponseEntity<?> join(@RequestBody UserRequest.JoinDto joinDto) {
+        User userPS = userRepository.save(joinDto.toEntity());
         return new ResponseEntity<>(userPS, HttpStatus.CREATED);
     }
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserIn.LoginInDto loginInDto){
-        User userPS = userRepository.findByUsername(loginInDto.getUsername(), loginInDto.getPassword()).orElseThrow(
-                ()-> new MyException("해당 유저를 찾을 수 없습니다")
+    public ResponseEntity<?> login(@RequestBody UserRequest.LoginDto loginDto) {
+        User userPS = userRepository.findByUsername(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(
+                () -> new MyException("해당 유저를 찾을 수 없습니다")
         );
         session.setAttribute("loginUser", userPS);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @GetMapping("/user/{id}")
-    public ResponseEntity<?> userDetail(@PathVariable Integer id){
-        User userPS = userRepository.findById(id).orElseThrow(
-                ()-> new MyException("해당 유저를 찾을 수 없습니다")
-        );
-        return new ResponseEntity<>(userPS, HttpStatus.OK);
-    }
-    @GetMapping("/user")
-    public ResponseEntity<?> userList(){
+
+    // 인증 체크
+    @GetMapping("/users")
+    public ResponseEntity<?> userList() {
         List<User> userListPS = userRepository.findAll();
         return new ResponseEntity<>(userListPS, HttpStatus.OK);
     }
-    
-    @GetMapping("/product/cart/{id}") // 주소에 동사가 나오는 예외가 생길 수 있다
-    public ResponseEntity<?> like(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response){
+
+    // 인증과 권한 - 세션 찾기
+    @GetMapping("/users/{id}/v1")
+    public ResponseEntity<?> userDetailV1(@PathVariable Integer id) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (!loginUser.getId().equals(id)) {
+            throw new MyException("고객 정보를 볼 수 있는 권한이 없습니다");
+        }
+        User userPS = userRepository.findById(id).orElseThrow(
+                () -> new MyException("해당 유저를 찾을 수 없습니다")
+        );
+        return new ResponseEntity<>(userPS, HttpStatus.OK);
+    }
+
+    // 인증과 권한 - 리졸버
+    @GetMapping("/users/{id}/v2")
+    public ResponseEntity<?> userDetailV2(@PathVariable Integer id, @LoginUser User loginUser) {
+        if (!loginUser.getId().equals(id)) {
+            throw new MyException("고객 정보를 볼 수 있는 권한이 없습니다");
+        }
+        User userPS = userRepository.findById(id).orElseThrow(
+                () -> new MyException("해당 유저를 찾을 수 없습니다")
+        );
+        return new ResponseEntity<>(userPS, HttpStatus.OK);
+    }
+
+    @PostMapping("/products/{id}/cart")
+    public ResponseEntity<?> addCart(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
         String productNames = "";
         Cookie[] cookies = request.getCookies();
 
         // 장바구니가 존재할 때
         boolean checkCookie = false;
-        for (Cookie c: cookies) {
-            if(c.getName().equals("cart")){
-                productNames += c.getValue()+"/"+id.toString();
+        for (Cookie c : cookies) {
+            if (c.getName().equals("cart")) {
+                productNames += c.getValue() + "/" + id.toString();
                 checkCookie = true;
             }
         }
 
         // 장바구니가 존재하지 않을 때
-        if(checkCookie == false){
+        if (checkCookie == false) {
             productNames = id.toString();
         }
 
         Cookie cookie = new Cookie("cart", productNames);
         cookie.setPath("/");
-        cookie.setMaxAge(1000*60*60); // 1시간
+        cookie.setMaxAge(1000 * 60 * 60); // 1시간
         cookie.setHttpOnly(false); // document.cookie
         response.addCookie(cookie);
         return new ResponseEntity<>("쿠키등록됨", HttpStatus.OK);
-    } // 좋아하는 숫자로 쿠키 학습
+    }
 }
