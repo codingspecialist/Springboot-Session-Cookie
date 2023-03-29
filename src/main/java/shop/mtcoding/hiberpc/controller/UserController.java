@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import shop.mtcoding.hiberpc.config.auth.LoginUser;
 import shop.mtcoding.hiberpc.dto.UserRequest;
 import shop.mtcoding.hiberpc.handler.ex.MyException;
 import shop.mtcoding.hiberpc.model.User;
@@ -16,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
+/**
+ * DI는 생성자 주입(IoC), 메서드 주입(DispatcherServlet)
+ */
 @RequiredArgsConstructor
 @RestController
 public class UserController {
@@ -24,15 +26,16 @@ public class UserController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody UserRequest.JoinDto joinDto) {
-        User userPS = userRepository.save(joinDto.toEntity());
-        return new ResponseEntity<>(userPS, HttpStatus.CREATED);
+        User userPS = userRepository.save(joinDto.toEntity()); // 비영속 -> 영속화(insert)
+        return new ResponseEntity<>(userPS, HttpStatus.CREATED); // 영속화된 객체를 MessageConverter가 JSON으로 직렬화 (Getter)
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserRequest.LoginDto loginDto) {
         User userPS = userRepository.findByUsername(loginDto.getUsername(), loginDto.getPassword()).orElseThrow(
-                () -> new MyException("해당 유저를 찾을 수 없습니다")
+                ()-> new MyException("아이디 혹은 비밀번호가 틀렸습니다")
         );
+
         session.setAttribute("loginUser", userPS);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -40,6 +43,12 @@ public class UserController {
     // 인증 체크
     @GetMapping("/users")
     public ResponseEntity<?> userList() {
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        if(loginUser == null){
+            throw new MyException("인증이 필요합니다", HttpStatus.UNAUTHORIZED); // 401
+        }
+
         List<User> userListPS = userRepository.findAll();
         return new ResponseEntity<>(userListPS, HttpStatus.OK);
     }
@@ -48,18 +57,6 @@ public class UserController {
     @GetMapping("/users/{id}/v1")
     public ResponseEntity<?> userDetailV1(@PathVariable Integer id) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (!loginUser.getId().equals(id)) {
-            throw new MyException("고객 정보를 볼 수 있는 권한이 없습니다");
-        }
-        User userPS = userRepository.findById(id).orElseThrow(
-                () -> new MyException("해당 유저를 찾을 수 없습니다")
-        );
-        return new ResponseEntity<>(userPS, HttpStatus.OK);
-    }
-
-    // 인증과 권한 - 리졸버
-    @GetMapping("/users/{id}/v2")
-    public ResponseEntity<?> userDetailV2(@PathVariable Integer id, @LoginUser User loginUser) {
         if (!loginUser.getId().equals(id)) {
             throw new MyException("고객 정보를 볼 수 있는 권한이 없습니다");
         }

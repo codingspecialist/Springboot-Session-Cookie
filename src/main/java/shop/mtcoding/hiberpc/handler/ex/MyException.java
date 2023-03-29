@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public class MyException extends RuntimeException{
     private HttpStatus httpStatus;
 
+    // 100프로 유효성 검사 실패
     public MyException(String msg) {
         this(msg, HttpStatus.BAD_REQUEST);
     }

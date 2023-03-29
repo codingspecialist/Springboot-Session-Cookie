@@ -12,6 +12,7 @@ public class UserRequest {
         private String password;
         private String email;
 
+        // insert, update 할 때 보통 만들어준다.
         public User toEntity(){
             return User.builder()
                     .username(username)
